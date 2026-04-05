@@ -2,19 +2,11 @@
     "compilerOptions": {
         "target": "ES2022",
         "module": "ESNext",
-        "moduleResolution": "bundler",
+        "moduleResolution": "Bundler",
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "resolveJsonModule": true,
-        "baseUrl": ".",
-        "paths": {
-            "@novapay/types": [
-                "packages/types/src"
-            ],
-            "@novapay/db": [
-                "packages/db/src"
-            ]
-        }
+        "outDir": "dist"
     }
 }

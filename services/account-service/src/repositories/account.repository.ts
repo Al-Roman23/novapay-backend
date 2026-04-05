@@ -1,4 +1,4 @@
-import { prisma } from "../prisma";
+import { prisma } from "@novapay/db";
 
 export const createAccount = async (userId: string, currency: string) => {
     return prisma.account.create({

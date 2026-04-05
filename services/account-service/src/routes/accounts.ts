@@ -1,18 +1,19 @@
 import { Hono } from "hono";
-import { prisma } from "../prisma";
+import {
+    createAccountHandler,
+    getAccountHandler,
+    createWalletHandler,
+    getWalletsHandler
+} from "../controllers/account.controller";
 
 const app = new Hono();
 
-app.post("/", async (c) => {
-    const body = await c.req.json();
+app.post("/", createAccountHandler);
 
-    const account = await prisma.account.create({
-        data: {
-            userId: body.userId,
-        },
-    });
+app.get("/:id", getAccountHandler);
 
-    return c.json(account);
-});
+app.get("/:id/wallets", getWalletsHandler);
+
+app.post("/:id/wallets", createWalletHandler);
 
 export default app;

@@ -15,12 +15,23 @@ export const createLedgerEntry = async (data: {
         toAmount: number;
     }
 }) => {
-    const response = await axios.post(
-        `${LEDGER_SERVICE_URL}/entry`,
-        data
-    );
+    try {
+        const response = await axios.post(
+            `${LEDGER_SERVICE_URL}/entry`,
+            data
+        );
 
-    return response.data;
+        return response.data;
+    } catch (error: any) {
+        // Extracting Descriptive Domain Failure Message From Remote Service Response
+        const message =
+            error?.response?.data?.message ||
+            error?.response?.data?.error ||
+            error?.message ||
+            "Ledger Core Submission Failure";
+
+        throw new Error(message);
+    }
 };
 
 // Fetch All Ledger Entries Associated With A Specific Transaction ID

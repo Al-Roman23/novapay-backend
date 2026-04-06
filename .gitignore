@@ -2,5 +2,3 @@ node_modules
 .env
 generated
 dist
-docs/novapay_tests.json
-decisions.md

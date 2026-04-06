@@ -1,0 +1,146 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  api-gateway:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8080:8080"
+    depends_on:
+      - account-service
+      - transaction-service
+      - ledger-service
+      - fx-service
+      - payroll-service
+      - admin-service
+
+  account-service:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    command: >
+      sh -c "npx prisma db push --schema=services/account-service/prisma/schema.prisma --url $$DATABASE_URL --accept-data-loss && npm run dev -w services/account-service"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/account_service_db
+      - MASTER_ENCRYPTION_KEY=d5fb72b325bbba1be66c3f883e86d53bc2fc86a7f0d6ac0bd88cc88072c5c717
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  ledger-service:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    command: >
+      sh -c "npx prisma db push --schema=services/ledger-service/prisma/schema.prisma --url $$DATABASE_URL --accept-data-loss && npm run dev -w services/ledger-service"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/ledger_service_db
+      - MASTER_ENCRYPTION_KEY=d5fb72b325bbba1be66c3f883e86d53bc2fc86a7f0d6ac0bd88cc88072c5c717
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  transaction-service:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    command: >
+      sh -c "npx prisma db push --schema=services/transaction-service/prisma/schema.prisma --url $$DATABASE_URL --accept-data-loss && npm run dev -w services/transaction-service"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/transaction_service_db
+      - FX_SERVICE_URL=http://fx-service:3006
+      - LEDGER_SERVICE_URL=http://ledger-service:3003
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  fx-service:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    command: >
+      sh -c "npx prisma db push --schema=services/fx-service/prisma/schema.prisma --url $$DATABASE_URL --accept-data-loss && npm run dev -w services/fx-service"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/fx_service_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  payroll-service:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    command: >
+      sh -c "npx prisma db push --schema=services/payroll-service/prisma/schema.prisma --url $$DATABASE_URL --accept-data-loss && npm run dev -w services/payroll-service"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/payroll_service_db
+      - REDIS_URL=redis://redis:6379
+      - TRANSACTION_SERVICE_URL=http://transaction-service:3002
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  admin-service:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    command: >
+      sh -c "npm run dev -w services/admin-service"
+    environment:
+      - ACCOUNT_SERVICE_URL=http://account-service:3001
+      - LEDGER_SERVICE_URL=http://ledger-service:3003
+      - TRANSACTION_SERVICE_URL=http://transaction-service:3002
+      - PORT=3007
+
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  grafana:
+    image: grafana/grafana:10.0.3
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.47
+    ports:
+      - "16686:16686" # Web UI
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+
+volumes:
+  postgres_data:

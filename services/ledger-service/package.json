@@ -1,5 +1,5 @@
 {
-    "name": "transaction-service",
+    "name": "ledger-service",
     "version": "1.0.0",
     "private": true,
     "main": "index.js",
@@ -18,11 +18,10 @@
         "@prisma/adapter-pg": "^7.6.0",
         "@prisma/client": "^7.6.0",
         "axios": "^1.14.0",
-        "bullmq": "^5.73.0",
         "dotenv": "^17.4.0",
         "hono": "^4.12.10",
-        "ioredis": "^5.10.1",
         "pg": "^8.20.0",
+        "@novapay/encryption": "*",
         "@novapay/observability": "*"
     },
     "devDependencies": {

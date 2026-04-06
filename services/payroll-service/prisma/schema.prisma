@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model PayrollJob {
+  id           String   @id @default(uuid())
+  employerId   String
+  status       PayrollStatus @default(PENDING)
+  totalAmount  Decimal
+  totalUsers   Int
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  items PayrollItem[]
+}
+
+model PayrollItem {
+  id           String   @id @default(uuid())
+  payrollJobId String
+
+  userId       String
+  amount       Decimal
+  currency     String
+
+  status       PayrollStatus @default(PENDING)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  payrollJob PayrollJob @relation(fields: [payrollJobId], references: [id])
+
+  @@index([payrollJobId])
+}
+
+enum PayrollStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}

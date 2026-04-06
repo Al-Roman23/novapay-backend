@@ -1,0 +1,60 @@
+name: NovaPay CI Refinery 🛡️💎
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # 🛡️ Detect Target Services
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.filter.outputs.changes }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            account-service: 'services/account-service/**'
+            transaction-service: 'services/transaction-service/**'
+            ledger-service: 'services/ledger-service/**'
+            fx-service: 'services/fx-service/**'
+            payroll-service: 'services/payroll-service/**'
+            admin-service: 'services/admin-service/**'
+
+  # 🛡️ Test And Build Changed Services
+  build-and-test:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.services != '[]' }}
+    strategy:
+      matrix:
+        service: ${{ fromJSON(needs.detect-changes.outputs.services) }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js Refinery
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Monorepo Dependencies
+        run: npm install
+
+      - name: Run Service Unit Tests
+        run: npx turbo run test --filter=${{ matrix.service }}
+
+      - name: Extract Semantic Version
+        id: version
+        run: |
+          VERSION=$(jq -r '.version' services/${{ matrix.service }}/package.json)
+          echo "SERVICE_VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build Docker Identity Tag
+        run: |
+          echo "🛡️ Building: ${{ matrix.service }}:${{ steps.version.outputs.SERVICE_VERSION }}"
+          docker build -t novapay/${{ matrix.service }}:${{ steps.version.outputs.SERVICE_VERSION }} ./services/${{ matrix.service }}

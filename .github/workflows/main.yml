@@ -1,0 +1,59 @@
+name: NovaPay CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [account-service, transaction-service, ledger-service, fx-service, payroll-service, admin-service]
+    
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Detect Changes in Service
+        id: filter
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            service:
+              - 'services/${{ matrix.service }}/**'
+              - 'packages/**'
+
+      - name: Enforce Version Bump
+        if: steps.filter.outputs.service == 'true' && github.event_name == 'pull_request'
+        run: |
+          # Extract Current Version From The PR Branch
+          CURRENT_VERSION=$(node -p "require('./services/${{ matrix.service }}/package.json').version")
+          # Extract Version From The Main Branch For Comparison
+          git fetch origin main --depth=1
+          BASE_VERSION=$(git show origin/main:services/${{ matrix.service }}/package.json | node -p "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).version" 2>/dev/null || echo "0.0.0")
+          echo "Base version: $BASE_VERSION | Current version: $CURRENT_VERSION"
+          if [ "$CURRENT_VERSION" = "$BASE_VERSION" ]; then
+            echo "ERROR: Version in services/${{ matrix.service }}/package.json was not bumped!"
+            echo "Current version ($CURRENT_VERSION) matches base branch. Bump the version alongside your code change."
+            exit 1
+          fi
+          echo "Version bump confirmed: $BASE_VERSION -> $CURRENT_VERSION"
+
+      - name: Install Dependencies
+        if: steps.filter.outputs.service == 'true'
+        run: npm ci
+
+      - name: Run Tests for ${{ matrix.service }}
+        if: steps.filter.outputs.service == 'true'
+        run: npm test -w services/${{ matrix.service }}
+
+      - name: Build Docker Image for ${{ matrix.service }}
+        if: steps.filter.outputs.service == 'true'
+        run: |
+          VERSION=$(node -p "require('./services/${{ matrix.service }}/package.json').version")
+          docker build -t ${{ matrix.service }}:$VERSION -f Dockerfile --build-arg SERVICE_PATH=services/${{ matrix.service }} .
+          echo "Built ${{ matrix.service }}:$VERSION successfully"

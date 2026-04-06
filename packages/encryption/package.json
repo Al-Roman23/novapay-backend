@@ -1,0 +1,10 @@
+{
+    "name": "@novapay/encryption",
+    "version": "1.0.0",
+    "main": "src/index.ts",
+    "private": true,
+    "devDependencies": {
+        "@types/node": "^20.11.30",
+        "typescript": "^5.4.5"
+    }
+}

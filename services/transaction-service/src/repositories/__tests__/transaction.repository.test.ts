@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as repository from "../transaction.repository";
 import { prisma } from "../../lib/prisma";
@@ -11,6 +12,25 @@ vi.mock("../../lib/prisma", () => ({
         }
     }
 }));
+
+// Providing Standardized Hash Calculation Symmetric To Repository Logic
+const computeRequestHash = (data: any) => {
+    return crypto
+        .createHash("sha256")
+        .update(
+            JSON.stringify({
+                fromWalletId: data.fromWalletId,
+                toWalletId: data.toWalletId,
+                amount: data.amount,
+                currency: data.currency,
+                toCurrency: data.toCurrency,
+                quoteId: data.quoteId,
+                lockedRate: data.lockedRate,
+                targetAmount: data.targetAmount
+            })
+        )
+        .digest("hex");
+};
 
 describe("Transaction Repository Idempotency Logic", () => {
 
@@ -27,9 +47,11 @@ describe("Transaction Repository Idempotency Logic", () => {
     };
 
     it("Scenario A: Should Return Existing Transaction If Valid Idempotency Key Exists", async () => {
-        const existingTx = { ...mockData, id: "tx-123", requestHash: "87c48f93effa90940dc6516104882cda0ece888241777d5402a5c13e43343391" };
+        // Generating Symmetric Hash Signature For Mock Integrity Validation
+        const requestHash = computeRequestHash(mockData);
+        const existingTx = { ...mockData, id: "tx-123", requestHash };
 
-        // Mocking Prisma Finding An Existing Transaction
+        // Mocking Prisma Finding An Existing Transaction Within Expiry Window
         (prisma.transaction.findFirst as any).mockResolvedValue(existingTx);
 
         const result = await repository.createTransaction(mockData);
@@ -41,10 +63,12 @@ describe("Transaction Repository Idempotency Logic", () => {
     it("Scenario E: Should Throw Error If Idempotency Key Reused With Different Payload", async () => {
         const existingTx = { ...mockData, id: "tx-123", requestHash: "WRONG_HASH" };
 
-        // Mocking Prisma Finding An Existing Transaction With A Different Hash
+        // Mocking Prisma Finding An Existing Transaction With A Tampered Hash Signature
         (prisma.transaction.findFirst as any).mockResolvedValue(existingTx);
 
-        await expect(repository.createTransaction(mockData)).rejects.toThrow("Idempotency key reused with different payload!");
+        await expect(repository.createTransaction(mockData)).rejects.toThrow(
+            "Idempotency Key Violation: Reused with different payload integrity!"
+        );
     });
 
     it("Scenario New: Should Create A New Transaction If No Existing Record Found", async () => {

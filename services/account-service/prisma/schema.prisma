@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Account {
+  id              String   @id @default(uuid())
+  encryptedUserId String   @unique
+  userIdIv        String
+  userIdDek       String
+  userIdDekIv     String
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  wallets   Wallet[]
+}
+
+model Wallet {
+  id            String   @id @default(uuid())
+  accountId     String
+  currency      String
+  balance       Decimal  @default(0)
+  lockedBalance Decimal  @default(0)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  account       Account  @relation(fields: [accountId], references: [id])
+
+  @@unique([accountId, currency])
+}

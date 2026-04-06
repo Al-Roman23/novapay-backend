@@ -22,7 +22,8 @@ app.get("/", (c) => {
     return c.text("Admin Service Running!");
 });
 
-app.route("/admin", adminRoutes);
+// Mounting The Oversight Admin Router At The Primary Service Root
+app.route("/", adminRoutes);
 
 serve({
     fetch: app.fetch,

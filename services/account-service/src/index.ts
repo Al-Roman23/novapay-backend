@@ -22,7 +22,8 @@ app.get("/", (c) => {
     return c.text("Account Service Running!");
 });
 
-app.route("/accounts", accounts);
+// Registering The Router Modules At The Centralised Logic Prefix
+app.route("/", accounts);
 
 serve({
     fetch: app.fetch,

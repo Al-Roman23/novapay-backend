@@ -8,7 +8,7 @@ import {
 
 const app = new Hono();
 
-app.post("/", createAccountHandler);
+app.post("/account", createAccountHandler);
 
 app.get("/:id", getAccountHandler);
 

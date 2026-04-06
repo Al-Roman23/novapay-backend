@@ -51,7 +51,7 @@ export const getSystemHealth = async () => {
 export const checkLedgerInvariant = async () => {
     try {
         const response = await axios.get(
-            `${LEDGER_SERVICE_URL}/ledger/invariant`
+            `${LEDGER_SERVICE_URL}/invariant`
         );
 
         return response.data;

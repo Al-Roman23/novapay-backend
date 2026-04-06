@@ -1,14 +1,19 @@
 import * as service from "../services/account.service";
 
 export const createAccountHandler = async (c: any) => {
-    const body = await c.req.json();
+    try {
+        const body = await c.req.json();
 
-    const account = await service.createAccount(
-        body.userId,
-        body.currency || "USD"
-    );
+        // Accept userId As Primary Input For Field-Level Encrypted Account Creation
+        const account = await service.createAccount(
+            body.userId,
+            body.currency || "USD"
+        );
 
-    return c.json(account);
+        return c.json(account, 201);
+    } catch (error: any) {
+        return c.json({ error: error.message || "Account Creation Failed!" }, 500);
+    }
 };
 
 export const getAccountHandler = async (c: any) => {

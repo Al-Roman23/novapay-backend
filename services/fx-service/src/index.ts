@@ -22,7 +22,8 @@ app.get("/", (c) => {
     return c.text("FX Service Running!");
 });
 
-app.route("/fx", fxRoutes);
+// Establishing The Market Rate Router At The Dedicated Service Core
+app.route("/", fxRoutes);
 
 serve({
     fetch: app.fetch,

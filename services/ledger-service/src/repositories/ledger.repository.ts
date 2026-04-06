@@ -9,6 +9,11 @@ export const createLedgerAccount = async (
     // Encrypt The Sensitive Wallet ID Before Saving To Database
     const { data: encryptedWalletId, iv: walletIdIv, dek: walletIdDek, dekIv: walletIdDekIv } = encrypt(walletId);
 
+    // Fulfilling Hardening Requirement: Guard Against Undefined Identity Hashing
+    if (!walletId) {
+        throw new Error("Critical Failure: Wallet Identity Is Required For Ledger Account Creation.");
+    }
+
     // Generating Secure Identity Hash For Anonymous Searchability In The Ledger
     const walletIdHash = crypto
         .createHash("sha256")
@@ -51,6 +56,11 @@ export const createEntry = async (
         toAmount: number;
     }
 ) => {
+    // Fulfilling Hardening Requirement: Guard Against Undefined Identity Hashing
+    if (!walletOrInternalId) {
+        throw new Error("Critical Failure: Wallet Identity Is Required For Ledger Entry Creation.");
+    }
+
     // Attempting To Resolve Ledger ID From Service Identity Hash For Production Multi-Service Compatibility
     const identityHash = crypto
         .createHash("sha256")
@@ -113,6 +123,38 @@ export const createEntry = async (
             fromAmount: fxMeta?.fromAmount,
             toAmount: fxMeta?.toAmount
         },
+    });
+};
+
+// Orchestrating Atomic Double-Entry Settlement Pair Under Strict ACID Isolation
+export const createDoubleEntry = async (data: {
+    fromWalletId: string;
+    toWalletId: string;
+    amount: number;
+    currency: string;
+    transactionId: string;
+    fxMeta?: any;
+}) => {
+    return prisma.$transaction(async (tx) => {
+        // Leg 1: Debit The Source Wallet Identity
+        const debit = await createEntry(
+            data.fromWalletId,
+            "DEBIT",
+            data.amount,
+            data.transactionId,
+            data.fxMeta
+        );
+
+        // Leg 2: Credit The Target Wallet Identity
+        const credit = await createEntry(
+            data.toWalletId,
+            "CREDIT",
+            data.fxMeta ? data.fxMeta.toAmount : data.amount,
+            data.transactionId,
+            data.fxMeta
+        );
+
+        return { debit, credit };
     });
 };
 

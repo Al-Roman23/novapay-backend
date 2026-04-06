@@ -15,14 +15,8 @@ export const createEntryHandler = async (c: any) => {
     try {
         const body = await c.req.json();
 
-        // Executing Double-Entry Settlement Logical Pair In The Final Truth Source
-        const entry = await service.createEntry(
-            body.ledgerAccountId,
-            body.type,
-            body.amount,
-            body.transactionId,
-            body.fxMeta
-        );
+        // Fulfilling Hardening Requirement: Atomic Orchestration Of Multi-Service High Fidelity Payloads
+        const entry = await service.createEntryAtomic(body);
 
         return c.json(entry);
     } catch (error: any) {

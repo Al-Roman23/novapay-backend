@@ -8,23 +8,29 @@ export const createLedgerAccount = async (
     return repository.createLedgerAccount(walletId, currency);
 };
 
-export const createEntry = async (
-    ledgerAccountId: string,
-    type: "DEBIT" | "CREDIT",
-    amount: number,
-    transactionId: string,
-    fxMeta?: {
-        rate: number;
-        fromAmount: number;
-        toAmount: number;
+export const createEntryAtomic = async (data: any) => {
+    // Fulfilling Hardening Requirement: Detect If Payload Is Single-Entry Or Double-Entry
+    const isDoubleEntry = data.fromWalletId && data.toWalletId;
+
+    if (isDoubleEntry) {
+        // Orchestrating Balanced Settlement Pair Via Isolated Transaction
+        return repository.createDoubleEntry({
+            fromWalletId: data.fromWalletId,
+            toWalletId: data.toWalletId,
+            amount: Number(data.amount),
+            currency: data.currency,
+            transactionId: data.transactionId,
+            fxMeta: data.fxMeta
+        });
     }
-) => {
+
+    // Defaulting To Single-Entry Pattern For Legacy Or Internal Orchestration
     return repository.createEntry(
-        ledgerAccountId,
-        type,
-        amount,
-        transactionId,
-        fxMeta
+        data.ledgerAccountId,
+        data.type,
+        Number(data.amount),
+        data.transactionId,
+        data.fxMeta
     );
 };
 

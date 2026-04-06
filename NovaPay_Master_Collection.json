@@ -387,7 +387,7 @@
 						"method": "POST",
 						"body": {
 							"mode": "raw",
-							"raw": "{\"fromWalletId\": \"wallet-a\", \"toWalletId\": \"wallet-b\", \"amount\": 10, \"currency\": \"USD\", \"transactionId\": \"tx-123\"}",
+							"raw": "{\n  \"fromWalletId\": \"wallet-a\",\n  \"toWalletId\": \"wallet-b\",\n  \"amount\": 10,\n  \"currency\": \"USD\",\n  \"transactionId\": \"tx-123\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"

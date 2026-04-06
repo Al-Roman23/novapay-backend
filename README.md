@@ -56,12 +56,12 @@ All Internal Traffic Flows Through The Nginx Gateway At `http://localhost:8088`.
 ### 🏢 1. Account Service (`/accounts`)
 - **POST `/account`**
   - *Req*: `{"userId": "emp-001", "currency": "USD"}`
-  - *Res*: `{"id": "acc-123", "userId": "emp-001", "wallets": [...]}`
-- **GET `/:id`**
   - *Res*: `{"id": "acc-123", "userId": "emp-001"}`
+- **GET `/:id/wallets`**
+  - *Res*: `[{"id": "w-1", "currency": "USD"}]`
 - **POST `/:id/wallets`**
   - *Req*: `{"currency": "BDT"}`
-  - *Res*: `{"id": "wallet-456", "currency": "BDT"}`
+  - *Res*: `{"id": "w-2", "currency": "BDT"}`
 
 ### 💱 2. FX Service (`/fx`)
 - **POST `/quote`**
@@ -73,32 +73,31 @@ All Internal Traffic Flows Through The Nginx Gateway At `http://localhost:8088`.
   - *Res*: `{"status": "MARKED_USED"}`
 
 ### 💸 3. Transaction Service (`/transactions`)
-- **POST `/transfers/international`**
-  - *Req*: `{"idempotencyKey": "tx-1", "amount": 100, "quoteId": "quote-789"}`
-  - *Res*: `{"id": "tx-001", "status": "COMPLETED"}`
-- **GET `/history`**
-  - *Res*: `[{"id": "tx-001", "amount": 100, "status": "COMPLETED"}]`
-
-### 📑 📑 4. Payroll Service (`/payroll`)
 - **POST `/`**
-  - *Req*: `{"employerId": "hr-1", "items": [{"userId": "emp-1", "amount": 50}]}`
+  - *Req*: `{"fromWalletId": "w-1", "toWalletId": "w-2", "amount": 10, "currency": "USD", "idempotencyKey": "tx-123"}`
+  - *Res*: `{"id": "tx-001", "status": "PENDING"}`
+- **POST `/transfers/international`**: **Mission Problem 1 & 3 Hardening**
+  - *Req*: `{"fromWalletId": "w-1", "toWalletId": "w-r", "amount": 100, "quoteId": "quote-789", "idempotencyKey": "transfer-abc"}`
+  - *Res*: `{"id": "tx-002", "status": "COMPLETED"}`
+- **GET `/history`**
+  - *Res*: `[{"id": "tx-001", "amount": 10, "status": "PENDING"}]`
+
+### 📑 4. Payroll Service (`/payroll`)
+- **POST `/`**
+  - *Req*: `{"employerId": "hr-1", "fromWalletId": "w-hr", "items": [{"userId": "emp-1", "walletId": "w-e1", "amount": 50, "currency": "USD"}]}`
   - *Res*: `{"jobId": "pay-999", "status": "QUEUED"}`
 - **GET `/:id`**
-  - *Res*: `{"jobId": "pay-999", "processedItems": 45, "totalItems": 50}`
+  - *Res*: `{"jobId": "pay-999", "processedItems": 1, "totalItems": 1}`
 
 ### 📒 5. Ledger Service (`/ledger`)
 - **POST `/account`**
   - *Req*: `{"walletId": "w-1", "currency": "USD"}`
-  - *Res*: `{"id": "led-acc-1", "balance": "0.00"}`
+  - *Res*: `{"id": "led-acc-1"}`
 - **POST `/entry`**
-  - *Req*: `{"fromWalletId": "w-1", "toWalletId": "w-2", "amount": 10}`
-  - *Res*: `{"transactionId": "tx-001", "entries": [debit, credit]}`
+  - *Req*: `{"fromWalletId": "w-1", "toWalletId": "w-2", "amount": 10, "currency": "USD", "transactionId": "tx-001"}`
+  - *Res*: `{"transactionId": "tx-001", "status": "BALANCED"}`
 - **GET `/invariant`**
   - *Res*: `{"status": "BALANCED", "drift": "0.00"}`
-
-### 🛡️ 6. Admin Service (`/admin`)
-- **GET `/health`**: `{"status": "HEALTHY", "services": 6}`
-- **GET `/ledger-invariant`**: `{"status": "BALANCED"}`
 
 ---
 
@@ -122,9 +121,6 @@ Every transaction maps to a **Debit** and **Credit** pair. We verify sanity via 
 ### 📑 4. Payroll Resumability (Checkpoint Pattern)
 Workers use a **Stateful Job Queue**. Each creditor is tracked individually. On restart, the worker queries `PayrollItem where status != 'COMPLETED'`, skipping already paid employees.
 
-### ⛓️ 5. Audit Hash Chain & Tamper Detection
-Entries are chained: `Hash_N = SHA256(Hash_N-1 + Details)`. Modifying a historical row invalidates the entire subsequent chain, alerting the **Integrity Monitor**.
-
 ---
 
 ## 🛠️ Tradeoffs & Roadmap (Mission Deliverables #8-9)
@@ -135,4 +131,4 @@ Entries are chained: `Hash_N = SHA256(Hash_N-1 + Details)`. Modifying a historic
 
 ### Future Roadmap
 - **Hardware Security (HSM)**: Secure storage for Master Keys.
-- **Event Sourcing**: Rebuild ledger from raw events for absolute disaster recovery.
+- **Zero-Knowledge Proofs**: Allow external audits without exposing private salary data.

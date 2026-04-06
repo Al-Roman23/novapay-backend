@@ -12,7 +12,7 @@
         "doc": "docs"
     },
     "scripts": {
-        "test": "vitest run --workspace"
+        "test": "vitest run"
     },
     "keywords": [],
     "author": "",

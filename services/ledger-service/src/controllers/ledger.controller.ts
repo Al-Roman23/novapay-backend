@@ -21,9 +21,9 @@ export const createEntryHandler = async (c: any) => {
         return c.json(entry);
     } catch (error: any) {
         // Mapping Domain Logic Failures To Professional HTTP 400 Status
-        return c.json({ 
-            error: "Ledger Entry Rejection", 
-            message: error.message 
+        return c.json({
+            error: "Ledger Entry Rejection",
+            message: error.message
         }, 400);
     }
 };

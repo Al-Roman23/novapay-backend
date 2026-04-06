@@ -32,8 +32,8 @@ export const createTransferHandler = async (c: Context) => {
 
         // Fulfilling Hardening Requirement: Pass Through Upstream Validation Errors (400/402/404)
         const status = error.status || error.response?.status || 500;
-        return c.json({ 
-            error: "Transfer Settlement Failure", 
+        return c.json({
+            error: "Transfer Settlement Failure",
             message: error.message || "An internal error occurred during orchestration."
         }, status);
     }

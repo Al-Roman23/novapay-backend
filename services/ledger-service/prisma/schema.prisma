@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model LedgerAccount {
+  id                String   @id @default(uuid())
+  encryptedWalletId String
+  walletIdIv        String
+  walletIdDek       String
+  walletIdDekIv     String
+
+  currency          String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  entries   LedgerEntry[]
+}
+
+model LedgerEntry {
+  id              String   @id @default(uuid())
+  ledgerAccountId String
+
+  type            EntryType
+  amount          Decimal
+
+  transactionId   String
+
+  previousHash    String?
+  hash            String    @unique
+
+  createdAt       DateTime @default(now())
+
+  ledgerAccount   LedgerAccount @relation(fields: [ledgerAccountId], references: [id])
+
+  @@index([transactionId])
+  @@index([hash])
+}
+
+enum EntryType {
+  DEBIT
+  CREDIT
+}

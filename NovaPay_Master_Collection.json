@@ -199,7 +199,7 @@
 						"method": "POST",
 						"body": {
 							"mode": "raw",
-							"raw": "{\"amount\": 10, \"currency\": \"USD\"}",
+							"raw": "{\n  \"fromWalletId\": \"wallet-uuid-a\",\n  \"toWalletId\": \"wallet-uuid-b\",\n  \"amount\": 10,\n  \"currency\": \"USD\",\n  \"idempotencyKey\": \"tx-node-test-1\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"

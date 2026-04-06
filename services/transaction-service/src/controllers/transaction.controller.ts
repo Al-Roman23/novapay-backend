@@ -1,11 +1,20 @@
 import * as service from "../services/transaction.service";
 
 export const createTransactionHandler = async (c: any) => {
-    const body = await c.req.json();
+    try {
+        const body = await c.req.json();
 
-    const transaction = await service.createTransaction(body);
+        // Initiating Hardened Service Transaction Creation Logic
+        const transaction = await service.createTransaction(body);
 
-    return c.json(transaction);
+        return c.json(transaction);
+    } catch (error: any) {
+        // Mapping Internal Validation Failures To Professional HTTP 400 Status
+        return c.json({
+            error: "Transaction Validation Failure",
+            message: error.message
+        }, 400);
+    }
 };
 
 export const getTransactionHandler = async (c: any) => {

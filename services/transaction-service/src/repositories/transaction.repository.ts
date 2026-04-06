@@ -2,7 +2,14 @@ import { prisma } from "../lib/prisma";
 import crypto from "crypto";
 
 export const createTransaction = async (data: any) => {
-    // Create Request Hash
+    // Fulfilling Hardening Requirement: Validate Absolute Minimum Schema Parity
+    if (!data.idempotencyKey || !data.fromWalletId || !data.toWalletId) {
+        throw new Error(
+            "Missing Critical Transaction Headers: idempotencyKey, fromWalletId, and toWalletId are mandated."
+        );
+    }
+
+    // Create Request Hash For Scenario E (Payload Hijacking Detection)
     const requestHash = crypto
         .createHash("sha256")
         .update(
@@ -11,15 +18,15 @@ export const createTransaction = async (data: any) => {
                 toWalletId: data.toWalletId,
                 amount: data.amount,
                 currency: data.currency,
-                toCurrency: data.toCurrency, // Include For Scenario E
-                quoteId: data.quoteId,        // Include For Scenario E
+                toCurrency: data.toCurrency,
+                quoteId: data.quoteId,
                 lockedRate: data.lockedRate,
                 targetAmount: data.targetAmount
             })
         )
         .digest("hex");
 
-    // Check Existing Valid Transaction
+    // Check Existing Valid Transaction (Scenario A Implementation)
     const existing = await prisma.transaction.findFirst({
         where: {
             idempotencyKey: data.idempotencyKey,
@@ -29,17 +36,17 @@ export const createTransaction = async (data: any) => {
         }
     });
 
-    // If Exists - Compare Hash
+    // If Exists - Compare Hash Integrity
     if (existing) {
         if (existing.requestHash !== requestHash) {
             throw new Error(
-                "Idempotency key reused with different payload!"
+                "Idempotency Key Violation: Reused with different payload integrity!"
             );
         }
         return existing;
     }
 
-    // Create New Transaction
+    // Persisting New Transaction With Status PENDING
     return prisma.transaction.create({
         data: {
             fromWalletId: data.fromWalletId,
@@ -52,9 +59,7 @@ export const createTransaction = async (data: any) => {
             targetAmount: data.targetAmount,
             idempotencyKey: data.idempotencyKey,
             requestHash,
-            idempotencyExpiresAt: new Date(
-                Date.now() + 24 * 60 * 60 * 1000
-            ),
+            idempotencyExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
             status: "PENDING"
         }
     });

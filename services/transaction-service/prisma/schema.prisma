@@ -17,6 +17,8 @@ model Transaction {
 
   toCurrency     String?
   quoteId        String?
+  lockedRate     Decimal?  // Store Locked Rate At Creation
+  targetAmount   Decimal?  // Amount Receiver Gets
 
   idempotencyKey String   @unique
   idempotencyExpiresAt DateTime
@@ -27,6 +29,7 @@ model Transaction {
 
   @@index([fromWalletId])
   @@index([toWalletId])
+  @@index([createdAt])
 }
 
 enum TransactionStatus {

@@ -12,7 +12,9 @@ export const createTransaction = async (data: any) => {
                 amount: data.amount,
                 currency: data.currency,
                 toCurrency: data.toCurrency, // Include For Scenario E
-                quoteId: data.quoteId        // Include For Scenario E
+                quoteId: data.quoteId,        // Include For Scenario E
+                lockedRate: data.lockedRate,
+                targetAmount: data.targetAmount
             })
         )
         .digest("hex");
@@ -46,6 +48,8 @@ export const createTransaction = async (data: any) => {
             currency: data.currency,
             toCurrency: data.toCurrency,
             quoteId: data.quoteId,
+            lockedRate: data.lockedRate,
+            targetAmount: data.targetAmount,
             idempotencyKey: data.idempotencyKey,
             requestHash,
             idempotencyExpiresAt: new Date(
@@ -59,5 +63,22 @@ export const createTransaction = async (data: any) => {
 export const getTransaction = async (id: string) => {
     return prisma.transaction.findUnique({
         where: { id }
+    });
+};
+
+// Enforcing Pagination Constraints To Maintain Optimal Database Performance
+export const getTransactionHistory = async (walletId: string, limit: number, offset: number) => {
+    return prisma.transaction.findMany({
+        where: {
+            OR: [
+                { fromWalletId: walletId },
+                { toWalletId: walletId }
+            ]
+        },
+        orderBy: {
+            createdAt: "desc"
+        },
+        take: limit,
+        skip: offset
     });
 };

@@ -24,8 +24,8 @@ export const createTransferHandler = async (c: Context) => {
 
         // Scenario B: Handling Database Level Unique Constraint Violations For Race Conditions
         if (error.code === "P2002" || error.message?.includes("Unique constraint")) {
-            return c.json({ 
-                error: "Another request with the same idempotency key is already in progress or completed." 
+            return c.json({
+                error: "Another request with the same idempotency key is already in progress or completed."
             }, 409);
         }
 

@@ -24,7 +24,8 @@ app.get("/", (c) => {
     return c.text("Transaction Service Running!");
 });
 
-app.route("/transactions", transactionRoutes);
+// Attaching The Transaction Router At The Primary Service Root
+app.route("/", transactionRoutes);
 app.route("/", transferRoutes);
 
 serve({

@@ -21,13 +21,21 @@ export const recoveryWorker = async () => {
             const hasDebit = entries.some((e: any) => e.type === "DEBIT");
             const hasCredit = entries.some((e: any) => e.type === "CREDIT");
 
+            // Reconstruct FX Metadata From The Transaction Record For Consistent Recovery
+            const fxMeta = transaction.lockedRate ? {
+                rate: Number(transaction.lockedRate),
+                fromAmount: Number(transaction.amount),
+                toAmount: Number(transaction.targetAmount)
+            } : undefined;
+
             // Perform The Missing Leg Of The Double-Entry Movement Idempotently
             if (!hasDebit) {
                 await createLedgerEntry({
                     ledgerAccountId: transaction.fromWalletId,
                     type: "DEBIT",
                     amount: Number(transaction.amount),
-                    transactionId: transaction.id
+                    transactionId: transaction.id,
+                    fxMeta
                 });
             }
 
@@ -35,8 +43,9 @@ export const recoveryWorker = async () => {
                 await createLedgerEntry({
                     ledgerAccountId: transaction.toWalletId,
                     type: "CREDIT",
-                    amount: Number(transaction.amount),
-                    transactionId: transaction.id
+                    amount: fxMeta ? fxMeta.toAmount : Number(transaction.amount),
+                    transactionId: transaction.id,
+                    fxMeta
                 });
             }
 

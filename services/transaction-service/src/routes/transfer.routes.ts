@@ -3,6 +3,6 @@ import { createTransferHandler } from "../controllers/transfer.controller";
 
 const transferRoutes = new Hono();
 
-transferRoutes.post("/transfer", createTransferHandler);
+transferRoutes.post("/transfers/international", createTransferHandler);
 
 export default transferRoutes;

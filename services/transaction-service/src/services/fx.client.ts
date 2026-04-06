@@ -5,7 +5,7 @@ const FX_SERVICE_URL = process.env.FX_SERVICE_URL || "http://localhost:3006";
 export const validateQuote = async (quoteId: string) => {
     try {
         const response = await axios.get(
-            `${FX_SERVICE_URL}/fx/quote/${quoteId}`
+            `${FX_SERVICE_URL}/quote/${quoteId}`
         );
 
         return response.data;
@@ -25,6 +25,6 @@ export const validateQuote = async (quoteId: string) => {
 export const markQuoteUsed = async (quoteId: string) => {
 
     await axios.post(
-        `${FX_SERVICE_URL}/fx/quote/${quoteId}/use`
+        `${FX_SERVICE_URL}/quote/${quoteId}/use`
     );
 };

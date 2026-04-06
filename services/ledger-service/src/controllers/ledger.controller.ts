@@ -12,17 +12,26 @@ export const createLedgerAccountHandler = async (c: any) => {
 };
 
 export const createEntryHandler = async (c: any) => {
-    const body = await c.req.json();
+    try {
+        const body = await c.req.json();
 
-    const entry = await service.createEntry(
-        body.ledgerAccountId,
-        body.type,
-        body.amount,
-        body.transactionId,
-        body.fxMeta
-    );
+        // Executing Double-Entry Settlement Logical Pair In The Final Truth Source
+        const entry = await service.createEntry(
+            body.ledgerAccountId,
+            body.type,
+            body.amount,
+            body.transactionId,
+            body.fxMeta
+        );
 
-    return c.json(entry);
+        return c.json(entry);
+    } catch (error: any) {
+        // Mapping Domain Logic Failures To Professional HTTP 400 Status
+        return c.json({ 
+            error: "Ledger Entry Rejection", 
+            message: error.message 
+        }, 400);
+    }
 };
 
 export const getEntriesHandler = async (c: any) => {

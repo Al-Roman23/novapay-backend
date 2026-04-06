@@ -20,15 +20,21 @@ export const createTransferHandler = async (c: Context) => {
 
     } catch (error: any) {
         // Logging The Full Error Hierarchy For Real-Time Trace Analysis Grid
-        console.error(error);
+        console.error(`Transfer Orchestration Crisis: ${error.message}`);
 
         // Scenario B: Handling Database Level Unique Constraint Violations For Race Conditions
         if (error.code === "P2002" || error.message?.includes("Unique constraint")) {
             return c.json({
-                error: "Another request with the same idempotency key is already in progress or completed."
+                error: "Idempotency Conflict",
+                message: "Another request with the same idempotency key is already in progress or completed."
             }, 409);
         }
 
-        return c.json({ error: error.message || "Transfer Failed!" }, 500);
+        // Fulfilling Hardening Requirement: Pass Through Upstream Validation Errors (400/402/404)
+        const status = error.status || error.response?.status || 500;
+        return c.json({ 
+            error: "Transfer Settlement Failure", 
+            message: error.message || "An internal error occurred during orchestration."
+        }, status);
     }
 };

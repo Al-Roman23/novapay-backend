@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Transaction {
+  id             String   @id @default(uuid())
+  fromWalletId   String
+  toWalletId     String
+  amount         Decimal
+  currency       String
+  status         TransactionStatus @default(PENDING)
+
+  toCurrency     String?
+  quoteId        String?
+
+  idempotencyKey String   @unique
+  idempotencyExpiresAt DateTime
+  requestHash    String
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([fromWalletId])
+  @@index([toWalletId])
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}

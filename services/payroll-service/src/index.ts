@@ -8,6 +8,9 @@ import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import payrollRoutes from "./routes/payroll.routes";
 
+// Import Worker To Ensure Background Job Processing Starts Automatically
+import "./workers/payroll.worker";
+
 const app = new Hono();
 
 // Global Observability Middleware For Tracing Payroll Lifecycle Execution
@@ -22,7 +25,8 @@ app.get("/", (c) => {
     return c.text("Payroll Service Running!");
 });
 
-app.route("/payroll", payrollRoutes);
+// Registering The Disbursement Router At The Primary Service Interface
+app.route("/", payrollRoutes);
 
 serve({
     fetch: app.fetch,

@@ -8,14 +8,15 @@ datasource db {
 }
 
 model PayrollJob {
-  id           String   @id @default(uuid())
-  employerId   String
-  status       PayrollStatus @default(PENDING)
-  totalAmount  Decimal
-  totalUsers   Int
+  id             String   @id @default(uuid())
+  employerId     String
+  fromWalletId   String   // The Employer Ledger Wallet ID To Debit
+  status         PayrollStatus @default(PENDING)
+  totalAmount    Decimal
+  totalUsers     Int
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   items PayrollItem[]
 }
@@ -25,6 +26,7 @@ model PayrollItem {
   payrollJobId String
 
   userId       String
+  walletId     String   // The Employee Ledger Wallet ID To Credit
   amount       Decimal
   currency     String
 

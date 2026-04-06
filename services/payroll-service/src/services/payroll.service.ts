@@ -8,7 +8,7 @@ export const createPayroll = async (data: any) => {
     // Persist Initial Payroll Record To Database
     const job = await repo.createPayroll(data);
 
-// Add Job To Processing Queue With Employer-Specific Identification
+    // Add Job To Processing Queue With Employer-Specific Identification
     // Using A Consistent jobId Pattern Ensures We Do Not Process The Same Job Twice
     await payrollQueue.add(
         "process-payroll",
@@ -44,7 +44,7 @@ export const processPayroll = async (data: any) => {
     // Iterate Through Every Employee Payment In The Job
     for (const item of payroll.items) {
         try {
-            // Skip Successful Payments If This Job Is A Retry
+            // Skip Successful Payments If This Job Is A Retry (Checkpoint Pattern)
             if (item.status === "COMPLETED") continue;
 
             // Mark Item As Processing
@@ -53,15 +53,17 @@ export const processPayroll = async (data: any) => {
                 data: { status: "PROCESSING" }
             });
 
-            // Dispatch Request To Transaction Service
+            // Dispatch Domestic Transfer To Transaction Service
+            // Using fromWalletId (employer ledger account) And item.walletId (employee ledger account)
+            // The Idempotency Key Is Unique Per Job+Item So Retries Are Safe
             await axios.post(
-                `${process.env.TRANSACTION_SERVICE_URL}/transfer`,
+                `${process.env.TRANSACTION_SERVICE_URL}/transfers/international`,
                 {
-                    fromWalletId: payroll.employerId,
-                    toWalletId: item.userId,
-                    amount: item.amount,
+                    fromWalletId: payroll.fromWalletId,  // Employer Ledger Account ID
+                    toWalletId: item.walletId,             // Employee Ledger Account ID
+                    amount: Number(item.amount),
                     currency: item.currency,
-                    idempotencyKey: `${payroll.id}-${item.id}`
+                    idempotencyKey: `payroll-${payroll.id}-item-${item.id}`
                 }
             );
 
@@ -72,7 +74,7 @@ export const processPayroll = async (data: any) => {
             });
 
         } catch (error: any) {
-            console.error(`Status Error Processing Payroll Item ${item.id}:`, error.message);
+            console.error(`Transfer Failed For Payroll Item ${item.id}:`, error.message);
 
             // Mark Individual Item Status As Failed
             await prisma.payrollItem.update({

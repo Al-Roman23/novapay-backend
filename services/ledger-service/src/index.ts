@@ -22,9 +22,21 @@ app.get("/", (c) => {
     return c.text("Ledger Service Running!");
 });
 
-app.route("/ledger", ledgerRoutes);
+// Mounting The Core Ledger Router At The Primary Service Entrance
+app.route("/", ledgerRoutes);
 
 serve({
     fetch: app.fetch,
     port: 3003,
 });
+
+import { checkLedgerInvariant } from "./services/ledger.service";
+
+// Periodically Monitoring System-Wide Financial Invariants For Real-Time Alerting
+setInterval(async () => {
+    try {
+        await checkLedgerInvariant();
+    } catch (error) {
+        console.error("Invariant Check Failed:", error);
+    }
+}, 10000);

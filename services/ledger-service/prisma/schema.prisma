@@ -13,6 +13,9 @@ model LedgerAccount {
   walletIdIv        String
   walletIdDek       String
   walletIdDekIv     String
+  
+  // A Searchable Hashed Identity For Secure Inter-Service Communication
+  walletIdHash      String?  @unique
 
   currency          String
 
@@ -28,6 +31,10 @@ model LedgerEntry {
 
   type            EntryType
   amount          Decimal
+
+  rate            Decimal?  // Record Locked FX Rate For Audit
+  fromAmount      Decimal?  // Original Amount Sent
+  toAmount        Decimal?  // Target Amount After Conversion
 
   transactionId   String
 

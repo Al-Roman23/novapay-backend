@@ -18,7 +18,8 @@ export const createEntryHandler = async (c: any) => {
         body.ledgerAccountId,
         body.type,
         body.amount,
-        body.transactionId
+        body.transactionId,
+        body.fxMeta
     );
 
     return c.json(entry);

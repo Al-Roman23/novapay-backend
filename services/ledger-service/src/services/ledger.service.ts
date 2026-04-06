@@ -12,13 +12,19 @@ export const createEntry = async (
     ledgerAccountId: string,
     type: "DEBIT" | "CREDIT",
     amount: number,
-    transactionId: string
+    transactionId: string,
+    fxMeta?: {
+        rate: number;
+        fromAmount: number;
+        toAmount: number;
+    }
 ) => {
     return repository.createEntry(
         ledgerAccountId,
         type,
         amount,
-        transactionId
+        transactionId,
+        fxMeta
     );
 };
 

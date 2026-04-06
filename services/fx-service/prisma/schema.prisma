@@ -1,0 +1,19 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model FXQuote {
+  id            String   @id @default(uuid())
+  fromCurrency  String
+  toCurrency    String
+  rate          Decimal
+  expiresAt     DateTime
+  used          Boolean  @default(false)
+
+  createdAt     DateTime @default(now())
+}

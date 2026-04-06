@@ -1,0 +1,88 @@
+### NovaPay API Refinery - Board Certification Tests
+# Use With VS Code "REST Client" Extension To Verify All Mission Scenarios
+
+@baseUrl = http://localhost:8088
+
+### 🏦 Scenario 1: Setup Accounts
+# Create Employer And Employee Accounts In The Ledger
+POST {{baseUrl}}/ledger/account
+Content-Type: application/json
+
+{
+  "walletId": "8b237fcb-87f1-453c-96ed-0a1e4b068606",
+  "currency": "USD"
+}
+
+### 🏦 Scenario 2: Setup Employee Account
+POST {{baseUrl}}/ledger/account
+Content-Type: application/json
+
+{
+  "walletId": "665017a0-72b3-49a3-912c-a4e4ab8fb061",
+  "currency": "USD"
+}
+
+### 🏦 Scenario 3: Create BDT Account (For FX Test)
+POST {{baseUrl}}/ledger/account
+Content-Type: application/json
+
+{
+  "walletId": "665017a0-72b3-49a3-912c-a4e4ab8fb061",
+  "currency": "BDT"
+}
+
+### 💱 Scenario 4: Get FX Quote (60s TTL)
+# @name fxQuote
+POST {{baseUrl}}/fx/quote
+Content-Type: application/json
+
+{
+  "fromCurrency": "USD",
+  "toCurrency": "BDT"
+}
+
+### 💸 Scenario 5: Execute International Transfer (FX Single Use)
+# Use The ID From The Previous Response To Verify Time-Lock
+POST {{baseUrl}}/transactions/transfers/international
+Content-Type: application/json
+
+{
+  "fromWalletId": "8b237fcb-87f1-453c-96ed-0a1e4b068606",
+  "toWalletId": "665017a0-72b3-49a3-912c-a4e4ab8fb061",
+  "amount": 1000,
+  "currency": "USD",
+  "toCurrency": "BDT",
+  "quoteId": "{{fxQuote.response.body.id}}",
+  "idempotencyKey": "international-test-{{$timestamp}}"
+}
+
+### 📑 Scenario 6: Bulk Payroll Job (Idempotent & Serial)
+# Verifies Scenario A (Success) And Scenario B (Concurrency)
+POST {{baseUrl}}/payroll/
+Content-Type: application/json
+
+{
+  "employerId": "hr-manager-novapay",
+  "fromWalletId": "8b237fcb-87f1-453c-96ed-0a1e4b068606",
+  "items": [
+    {
+      "userId": "emp-001",
+      "walletId": "665017a0-72b3-49a3-912c-a4e4ab8fb061",
+      "amount": 5.00,
+      "currency": "USD"
+    },
+    {
+      "userId": "emp-002",
+      "walletId": "665017a0-72b3-49a3-912c-a4e4ab8fb061",
+      "amount": 10.00, 
+      "currency": "USD"
+    }
+  ]
+}
+
+### 📈 Scenario 7: Check Admin Invariant (Security Balance)
+# Verifies That No Money Was Created Or Destroyed During Tests
+GET {{baseUrl}}/admin/ledger/invariant
+
+### 📊 Scenario 8: Internal Metrics (Prometheus)
+GET {{baseUrl}}/metrics

@@ -99,5 +99,8 @@ GET {{baseUrl}}/admin/ledger-invariant
 ### 📊 Scenario 9: Business Intelligence Snapshot (Board-Ready Stats)
 GET {{baseUrl}}/admin/business-metrics
 
-### 📊 Scenario 10: Internal Metrics (Prometheus)
+### 📊 Scenario 10: Transaction Business Intelligence
+GET {{baseUrl}}/transactions/metrics/stats
+
+### 📊 Scenario 11: Internal Metrics (Prometheus)
 GET {{baseUrl}}/metrics

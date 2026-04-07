@@ -1,5 +1,4 @@
 # NovaPay Transaction Backend Refinery 🛡️💎
-> **Board Certification: COMPLIANT** | High-Hardened Financial Infrastructure
 
 The NovaPay Backend Refinery Is A Mission-Critical Transaction Platform Designed To Handle Bulk Payroll And International Transfers With Absolute Integrity. Built To Resynchronize A Failed System, This Architecture Implements Rigorous Idempotency, Atomic Recovery, And Time-Locked FX Quotes To Eliminate Financial Drift.
 
@@ -40,13 +39,30 @@ graph TD
 
 ---
 
-## 🚀 QuickStart & Setup (Mission Deliverable #1)
+## 🚀 QuickStart & Setup
 To Boot The Entire Refinery From Zero:
 
-1. **Environment**: Run `./setup.sh` (or `setup.ps1` on Windows) To Initialize Variables.
-2. **Infrastructure**: `cd infra && docker-compose up -d --build`.
-3. **Database**: `npm install && npx turbo generate`.
-4. **Verification**: `npm test` (Runs The Full Hardening Suite).
+1. **Install Dependencies**: Run this in the root directory to grab all NPM packages.
+   ```bash
+   npm install
+   ```
+
+2. **Initialize Environment**: This script automatically sets up your local `.env` files.
+   ```bash
+   ./setup.sh    # Git Bash / Linux / Mac
+   .\setup.ps1   # PowerShell / Windows
+   ```
+
+3. **Boot Infrastructure**: Launch Postgres, Redis, and all exactly-once microservices. *Prisma clients and database schemas will generate automatically inside the containers.*
+   ```bash
+   cd infra
+   docker-compose up -d --build
+   ```
+
+4. **Verify The System**: Once the containers are running, execute the full mathematical hardening test suite.
+   ```bash
+   npm test
+   ```
 
 ---
 
@@ -142,3 +158,5 @@ Workers use a **Stateful Job Queue**. Each creditor is tracked individually. On 
 ### Future Roadmap
 - **Hardware Security (HSM)**: Secure storage for Master Keys.
 - **Zero-Knowledge Proofs**: Allow external audits without exposing private salary data.
+
+---

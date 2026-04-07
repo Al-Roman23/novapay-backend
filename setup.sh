@@ -20,12 +20,9 @@ done
 echo "🛡️ Step 2: Running Global NPM Install..."
 npm install
 
-# 3. Generating Secure Prisma Database Clients
-echo "🛡️ Step 3: Triggering Turbo Generator (Scaffolding)..."
-npx turbo generate
-
-echo "🛡️ Step 4: Generating Database Clients (Prisma)..."
-npx turbo run generate
+# 3. Prisma Client Integration
+echo "🛡️ Step 3: Preparing Database Schema For Docker Containers..."
+echo "ℹ️ Prisma client generation and migrations are automatically handled internally by docker-compose upon booting."
 
 echo "💎 NovaPay Setup Complete! Every Hardening Feature Is Now In Sync."
 echo "🚀 Next Step: Run 'cd infra && docker-compose up --build' To Launch The Refinery."

@@ -263,6 +263,56 @@
 					}
 				},
 				{
+					"name": "Create Account A (For Transfer Source)",
+					"request": {
+						"method": "POST",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"walletId\": \"wallet-a\",\n  \"currency\": \"USD\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ledger/account",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ledger",
+								"account"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Account B (For Transfer Destination)",
+					"request": {
+						"method": "POST",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"walletId\": \"wallet-b\",\n  \"currency\": \"USD\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ledger/account",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ledger",
+								"account"
+							]
+						}
+					}
+				},
+				{
 					"name": "International Transfer (Mission Prob 3)",
 					"event": [
 						{

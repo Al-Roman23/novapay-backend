@@ -12,13 +12,9 @@ COPY . .
 # This Correctly Links Local Packages Like @novapay/encryption
 RUN npm install
 
-# Step 3: Generate Prisma Client Artifacts For All Services
-# This Ensures The Prisma Client Is Available To Each Service Locally
-RUN npx prisma generate --schema=services/account-service/prisma/schema.prisma && \
-    npx prisma generate --schema=services/ledger-service/prisma/schema.prisma && \
-    npx prisma generate --schema=services/transaction-service/prisma/schema.prisma && \
-    npx prisma generate --schema=services/fx-service/prisma/schema.prisma && \
-    npx prisma generate --schema=services/payroll-service/prisma/schema.prisma
+# Step 3: Architecture Note
+# Prisma Client Generation Is Managed Dynamically At Runtime By Docker-Compose
+# Via The 'prisma db push' Boot Script For Maximum Volume Synchronization.
 
 # Note: The Specific Starting Command Is Defined In The docker-compose.yml File
 # Each Service Runs Its Own 'npm run dev' Command From Its Subdirectory

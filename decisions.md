@@ -75,3 +75,20 @@ Both Legs Of A Transfer (The Debit And The Credit) Are Settled Atomically Using 
 ## 📊 Problem 6: Distributed Business Intelligence
 Microservices By Nature Dispersed Operational Data. To Realign The Business Without Establishing An Extraneous Sync Service, We Implemented A **Global Overlay Pattern**.
 - The `AdminService` Dynamically Communicates With The `TransactionService` And The Service Mesh To Compile A High-Fidelity "Board-Ready" Dashboard At `GET /admin/business-metrics` Without Breaking Database Isolation Principles.
+
+---
+
+## 📡 Problem 7: Observability & Tracing (Checkpoint 3)
+A Microservice Monorepo Will Fail Without High-Fidelity Observability.
+- **Metrics**: We Scrape `Prometheus` Across All Services To Aggregate Traffic And Alert If `ledger-invariant-violation-count > 0`.
+- **Tracing**: All Requests Are Wrapped In `OpenTelemetry` Middleware And Forwarded To `Jaeger`. Even If The FX Provider Goes Down Mid-Transfer, The Trace Allows Rapid Diagnosis Without Searching Raw Logs.
+- **Logging**: All Raw Logs Are Appended With `requestId`, `userId`, `transactionId`, And `timestamp`, Masking Passwords And Cryptographic Keys.
+
+---
+
+## 🏎️ Problem 8: Selective CI/CD Pipeline (Checkpoint 4)
+With 6 Microservices, A Full Monorepo Build Per Commit Is Computationally Wasteful.
+- **Paths Filter**: We Implemented A Directed Acyclic Graph (DAG) Check Using Github Actions. Only Services With Changed Files Trigger A Test Run.
+- **Semantic Tags**: All Docker Builds Are Tagged In Absolute Parity With `package.json` Versions To Enforce Traceable Container Logistics.
+
+---

@@ -4,9 +4,10 @@ The NovaPay Backend Refinery Is A Mission-Critical Transaction Platform Designed
 
 ---
 
+> [!IMPORTANT]
 > ### 📺 Mission Verification: Video Showcase
-> **[WATCH THE 2-MINUTE END-TO-END DEMO VIDEO HERE](YOUR_GOOGLE_DRIVE_LINK_HERE)**
-> *This video demonstrates a clean clone, automated setup, and full Postman verification of all 21 microservice endpoints including bulk payroll and international transfers.*
+> **[WATCH THE FULL END-TO-END ASSESSMENT DEMO HERE (8:23)](https://drive.google.com/file/d/1beMeSXGQXGG4_fb2wTwRBTZHNbXNeM20/view)**
+> *This video demonstrates a 100% clean clone, automated mission setup, and full Postman verification of all 21 microservice endpoints. **Pro-Tip:** Since this is a raw, unedited run-through, feel free to watch at 1.5x or 2x speed to save time.*
 
 ---
 

@@ -19,12 +19,13 @@ Get-ChildItem -Filter ".env.example" -Recurse | ForEach-Object {
 Write-Host "🛡️ Step 2: Running Global NPM Install..." -ForegroundColor Cyan
 npm install
 
-# 3. Generating Secure Prisma Database Clients
-Write-Host "🛡️ Step 3: Triggering Turbo Generator (Scaffolding)..." -ForegroundColor Cyan
-npx turbo generate
-
-Write-Host "🛡️ Step 4: Generating Database Clients (Prisma)..." -ForegroundColor Cyan
-npx turbo run generate
+# 3. Generating Host-Side Database Clients (Prisma)
+Write-Host "🛡️ Step 3: Generating Schema Clients For IDE Intelligence..." -ForegroundColor Cyan
+$services = "account-service", "fx-service", "ledger-service", "payroll-service", "transaction-service"
+foreach ($service in $services) {
+    Write-Host "🏗️  Generating Client: $service" -ForegroundColor Yellow
+    npx prisma generate --schema="services/$service/prisma/schema.prisma"
+}
 
 Write-Host "💎 NovaPay Setup Complete! Every Hardening Feature Is Now In Sync." -ForegroundColor Green
 Write-Host "🚀 Next Step: Run 'cd infra; docker-compose up --build' To Launch The Refinery." -ForegroundColor Cyan

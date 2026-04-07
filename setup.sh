@@ -20,9 +20,12 @@ done
 echo "🛡️ Step 2: Running Global NPM Install..."
 npm install
 
-# 3. Prisma Client Integration
-echo "🛡️ Step 3: Preparing Database Schema For Docker Containers..."
-echo "ℹ️ Prisma client generation and migrations are automatically handled internally by docker-compose upon booting."
+# 3. Generating Host-Side Database Clients (Prisma)
+echo "🛡️ Step 3: Generating Schema Clients For IDE Intelligence..."
+for service in account-service fx-service ledger-service payroll-service transaction-service; do
+    echo "🏗️  Generating Client: $service"
+    npx prisma generate --schema="services/$service/prisma/schema.prisma"
+done
 
 echo "💎 NovaPay Setup Complete! Every Hardening Feature Is Now In Sync."
 echo "🚀 Next Step: Run 'cd infra && docker-compose up --build' To Launch The Refinery."

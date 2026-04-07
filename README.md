@@ -1,6 +1,12 @@
-# NovaPay Transaction Backend Refinery 🛡️💎
+# NovaPay Transaction Backend Refinery
 
 The NovaPay Backend Refinery Is A Mission-Critical Transaction Platform Designed To Handle Bulk Payroll And International Transfers With Absolute Integrity. Built To Resynchronize A Failed System, This Architecture Implements Rigorous Idempotency, Atomic Recovery, And Time-Locked FX Quotes To Eliminate Financial Drift.
+
+---
+
+> ### 📺 Mission Verification: Video Showcase
+> **[WATCH THE 2-MINUTE END-TO-END DEMO VIDEO HERE](YOUR_GOOGLE_DRIVE_LINK_HERE)**
+> *This video demonstrates a clean clone, automated setup, and full Postman verification of all 21 microservice endpoints including bulk payroll and international transfers.*
 
 ---
 
@@ -63,6 +69,13 @@ To Boot The Entire Refinery From Zero:
    ```bash
    npm test
    ```
+
+---
+
+## 🗺️ Supplementary Mission Artifacts
+To immediately verify the robust engineering of this system without writing curl requests manually, please refer to the following critical files:
+- 📖 [**Architectural Decisions Log (`decisions.md`)**](./decisions.md): Deep-dive formalizations of how the Idempotency Matrix, Payload Hijacking defenses, and Envelope Encryption were mathematically achieved under pressure.
+- 🚀 [**Postman Master Collection (`NovaPay_Master_Collection.json`)**](./NovaPay_Master_Collection.json): A 100% pre-configured, click-and-play testing suite that natively triggers all required edge cases, including bulk payroll and time-locked FX scenarios.
 
 ---
 

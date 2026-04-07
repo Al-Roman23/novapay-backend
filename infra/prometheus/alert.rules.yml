@@ -1,0 +1,12 @@
+groups:
+  - name: NovaPay_Integrity_Alerts
+    rules:
+      - alert: LedgerInvariantViolation
+        expr: novapay_ledger_invariant_violations_total > 0
+        for: 1s
+        labels:
+          severity: critical
+          team: backend-core
+        annotations:
+          summary: "CRITICAL: Database Ledger Invariant Violated"
+          description: "Money has been created or destroyed internally. The ledger has detected a financial drift greater than zero. Immediate engineering oversight required to halt transfers."

@@ -81,6 +81,8 @@ All Internal Traffic Flows Through The Nginx Gateway At `http://localhost:8088`.
   - *Res*: `{"id": "tx-002", "status": "COMPLETED"}`
 - **GET `/history`**
   - *Res*: `[{"id": "tx-001", "amount": 10, "status": "PENDING"}]`
+- **GET `/metrics/stats`** (Business Intelligence)
+  - *Res*: `{"completedCount": 150, "totalVolume": 50000}`
 
 ### 📑 4. Payroll Service (`/payroll`)
 - **POST `/`**
@@ -98,6 +100,14 @@ All Internal Traffic Flows Through The Nginx Gateway At `http://localhost:8088`.
   - *Res*: `{"transactionId": "tx-001", "status": "BALANCED"}`
 - **GET `/invariant`**
   - *Res*: `{"status": "BALANCED", "drift": "0.00"}`
+
+### 🛡️ 6. Admin Service (`/admin`)
+- **GET `/health`**
+  - *Res*: `{"status": "ok", "services": {"account-service": "up"}}`
+- **GET `/ledger-invariant`**
+  - *Res*: `{"isBalanced": true, "totalDebit": 250, "totalCredit": 250}`
+- **GET `/business-metrics`** (Board-Ready Global Dashboard)
+  - *Res*: `{"completedCount": 1500, "totalCount": 1512, "totalVolume": 1000000}`
 
 ---
 

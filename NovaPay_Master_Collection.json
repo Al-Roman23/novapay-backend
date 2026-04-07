@@ -298,6 +298,23 @@
 							]
 						}
 					}
+				},
+				{
+					"name": "Transaction Business Intelligence",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/transactions/metrics/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"transactions",
+								"metrics",
+								"stats"
+							]
+						}
+					}
 				}
 			]
 		},
@@ -478,6 +495,22 @@
 							"path": [
 								"admin",
 								"ledger-invariant"
+							]
+						}
+					}
+				},
+				{
+					"name": "Business Intelligence Snapshot",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/admin/business-metrics",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"business-metrics"
 							]
 						}
 					}

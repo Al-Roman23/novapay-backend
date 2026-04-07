@@ -62,3 +62,20 @@ export const checkLedgerInvariant = async () => {
         );
     }
 };
+
+// Orchestrating Global Financial Performance Aggregation For Board Presentation
+export const getBusinessMetrics = async () => {
+    try {
+        // Fetching Real-Time Analytical Data From The Transaction Refinery
+        const response = await axios.get(
+            `${TRANSACTION_SERVICE_URL}/metrics/stats`
+        );
+
+        return response.data;
+
+    } catch (error: any) {
+        throw new Error(
+            `Business Metrics Extraction Crisis: ${error.message}!`
+        );
+    }
+};

@@ -38,3 +38,14 @@ export const getTransactionHandler = async (c: any) => {
 
     return c.json({ error: "Missing ID Or WalletID For Search Query" }, 400);
 };
+
+export const getTransactionMetricsHandler = async (c: any) => {
+    try {
+        // Retrieving High-Hardened Distributed Performance Metrics
+        const metrics = await service.getTransactionMetrics();
+
+        return c.json(metrics);
+    } catch (error: any) {
+        return c.json({ error: error.message }, 500);
+    }
+};

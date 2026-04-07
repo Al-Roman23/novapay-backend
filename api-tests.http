@@ -80,9 +80,24 @@ Content-Type: application/json
   ]
 }
 
-### 📈 Scenario 7: Check Admin Invariant (Security Balance)
-# Verifies That No Money Was Created Or Destroyed During Tests
-GET {{baseUrl}}/admin/ledger/invariant
+### ⚖️ Scenario 7: Atomic Double-Entry Settlement (Manual Audit)
+POST {{baseUrl}}/ledger/entry
+Content-Type: application/json
 
-### 📊 Scenario 8: Internal Metrics (Prometheus)
+{
+  "fromWalletId": "8b237fcb-87f1-453c-96ed-0a1e4b068606",
+  "toWalletId": "665017a0-72b3-49a3-912c-a4e4ab8fb061",
+  "amount": 25.00,
+  "currency": "USD",
+  "transactionId": "manual-audit-{{$timestamp}}"
+}
+
+### 📈 Scenario 8: Check Admin Invariant (Security Balance)
+# Verifies That No Money Was Created Or Destroyed During Tests
+GET {{baseUrl}}/admin/ledger-invariant
+
+### 📊 Scenario 9: Business Intelligence Snapshot (Board-Ready Stats)
+GET {{baseUrl}}/admin/business-metrics
+
+### 📊 Scenario 10: Internal Metrics (Prometheus)
 GET {{baseUrl}}/metrics

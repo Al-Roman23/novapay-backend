@@ -6,8 +6,11 @@ import { prisma } from "../../lib/prisma";
 vi.mock("../../lib/prisma", () => ({
     prisma: {
         ledgerEntry: {
-            findMany: vi.fn()
-        }
+            findMany: vi.fn(),
+            create: vi.fn(),
+            findFirst: vi.fn()
+        },
+        $transaction: vi.fn()
     }
 }));
 
@@ -45,5 +48,33 @@ describe("Ledger Invariant Verification Logic", () => {
 
         expect(result.isBalanced).toBe(false);
         expect(result.violationCount).toBe(1);
+    });
+});
+
+describe("Ledger Atomic Double-Entry Logic", () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it("Should Correctly Route Double-Entry Payloads With Transaction Integrity", async () => {
+        const mockData = {
+            fromWalletId: "wallet-a",
+            toWalletId: "wallet-b",
+            amount: 100,
+            currency: "USD",
+            transactionId: "tx-123"
+        };
+
+        // Mocking Prisma Transaction
+        const mockDebit = { id: "debit-1", type: "DEBIT" };
+        const mockCredit = { id: "credit-1", type: "CREDIT" };
+        (prisma.$transaction as any).mockResolvedValue({ debit: mockDebit, credit: mockCredit });
+
+        // We can test createDoubleEntry without running actual db
+        const result = await repository.createDoubleEntry(mockData);
+
+        expect(prisma.$transaction).toHaveBeenCalled();
+        expect(result).toHaveProperty("debit");
+        expect(result).toHaveProperty("credit");
     });
 });

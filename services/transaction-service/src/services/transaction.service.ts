@@ -15,3 +15,8 @@ export const getTransaction = async (id: string) => {
 export const getTransactionHistory = async (walletId: string, limit: number, offset: number) => {
     return repository.getTransactionHistory(walletId, limit, offset);
 };
+
+// Exposing High-Hardened Financial Performance Metrics For Operational Audit
+export const getTransactionMetrics = async () => {
+    return repository.getSummaryMetrics();
+};

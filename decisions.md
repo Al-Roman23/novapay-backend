@@ -61,3 +61,17 @@ Sensitive Identifiers (Wallets, UserIds) Are Never Stored In Plaintext.
 Every `LedgerEntry` Is Link-Chained. The Hash Of Entry N includes the Hash of Entry N-1.
 `Hash = SHA256(PreviousHash + Amount + TransactionId + Timestamp)`
 Tampering With Record #500 Breaks The Integrity Of Every Subsequent Record, Enabling Immediate Detection Of Unauthorized DB Mutations.
+
+---
+
+## ⚖️ Problem 5: Double-Entry Atomic Settlement
+To Completely Eliminate "Financial Drift" Caused By Network Or Logic Failures, The `LedgerService` Operates Under Strict ACID Isolation.
+
+### The Double-Entry Enforcer:
+Both Legs Of A Transfer (The Debit And The Credit) Are Settled Atomically Using `prisma.$transaction`. If One Leg Inherits A Systemic Failure (e.g., A Wallet Is Unregistered), Both Legs Are Reversed Out Of The Database Immediately. This Guarantees That The System Remains Symmetrically Balanced 100% Of The Time.
+
+---
+
+## 📊 Problem 6: Distributed Business Intelligence
+Microservices By Nature Dispersed Operational Data. To Realign The Business Without Establishing An Extraneous Sync Service, We Implemented A **Global Overlay Pattern**.
+- The `AdminService` Dynamically Communicates With The `TransactionService` And The Service Mesh To Compile A High-Fidelity "Board-Ready" Dashboard At `GET /admin/business-metrics` Without Breaking Database Isolation Principles.

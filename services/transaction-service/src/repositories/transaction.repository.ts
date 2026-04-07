@@ -87,3 +87,27 @@ export const getTransactionHistory = async (walletId: string, limit: number, off
         skip: offset
     });
 };
+
+// Extracting Aggregated Business Performance Metrics For Board-Level Reporting
+export const getSummaryMetrics = async () => {
+    // Parallel Aggregation Of Financial And Operational Performance Indices
+    const stats = await prisma.$transaction([
+        prisma.transaction.count({ where: { status: "COMPLETED" } }),
+        prisma.transaction.count(),
+        prisma.transaction.aggregate({
+            _sum: {
+                amount: true
+            },
+            where: {
+                status: "COMPLETED"
+            }
+        })
+    ]);
+
+    return {
+        completedCount: stats[0],
+        totalCount: stats[1],
+        totalVolume: stats[2]._sum.amount || 0,
+        timestamp: new Date().toISOString()
+    };
+};

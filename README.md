@@ -147,6 +147,10 @@ Every transaction maps to a **Debit** and **Credit** pair. We verify sanity via 
 ### 📑 4. Payroll Resumability (Checkpoint Pattern)
 Workers use a **Stateful Job Queue**. Each creditor is tracked individually. On restart, the worker queries `PayrollItem where status != 'COMPLETED'`, skipping already paid employees.
 
+### 🔗 5. Audit Hash Chain (Tamper Detection)
+Every `LedgerEntry` Is Link-Chained Cryptographically. The hash of Entry N includes the hash of Entry N-1 (`Hash = SHA256(PreviousHash + Amount + TransactionId + Timestamp)`).
+- **In Practice**: If a direct database mutation changes a historical transaction amount by even 1 cent, the entire hash chain completely breaks for every subsequent record. This guarantees instantaneous cryptographic detection of any internal tampering or database drift.
+
 ---
 
 ## 🛠️ Tradeoffs & Roadmap (Mission Deliverables #8-9)
